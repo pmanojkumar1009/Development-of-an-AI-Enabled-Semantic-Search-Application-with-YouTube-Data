@@ -1,289 +1,187 @@
-YouTube Semantic Search Engine
-AI‑Enabled Semantic Search Application with YouTube Data
+# YouTube Semantic Search Engine
 
-1. Project Overview
-This project is an AI‑enabled YouTube Semantic Search Engine that helps users find videos based on the meaning of their query, not just keyword matches.
-The system converts video titles, descriptions, and transcripts, as well as user queries, into semantic embeddings and uses a vector database + cosine similarity to retrieve the most relevant videos.
+### AI-Enabled Semantic Search Application with YouTube Data
 
-This application was developed as part of Infosys Springboard Virtual Internship 6.0 (B2): Development of AI‑Enabled Semantic Search Application with YouTube Data.
+This project is an **AI-powered YouTube Semantic Search Engine** that
+retrieves videos based on the *meaning* of a user's query using
+transformer-based embeddings.\
+It was developed as part of **Infosys Springboard Virtual Internship 6.0
+(B2)**.
 
-2. Objectives
-Enable semantic search over YouTube videos using natural‑language queries.
+## 1. Project Overview
 
-Use transformer‑based sentence embeddings instead of plain keyword search.
+Traditional YouTube search works on keywords.\
+This project uses **semantic search**, which understands *context* and
+*intent*.
 
-Store and search embeddings efficiently using a vector database.
+The system: - Reads YouTube metadata & transcripts\
+- Converts them into embeddings\
+- Stores them in a vector database\
+- Searches the most relevant videos using cosine similarity
 
-Provide a modern, responsive UI for interacting with search results.
+## 2. Objectives
 
-Expose useful features like similarity scores, recent searches, sorting, and direct navigation to YouTube.
+-   Enable natural-language semantic search for YouTube videos\
+-   Use transformer-based sentence embeddings\
+-   Store embeddings efficiently using a vector database (ChromaDB)\
+-   Provide a modern UI to browse search results\
+-   Show similarity scores, recent searches, and sorting options
 
-3. High‑Level Architecture
-Frontend (React App)
+## 3. High-Level Architecture
 
-Built with React, Tailwind CSS, and Framer Motion.
+### Frontend (React)
 
-Communicates with the backend via REST API (/search).
+-   Built using **React, Tailwind CSS, Framer Motion**
+-   Communicates with backend via POST `/search`
+-   Displays video results, similarity scores, sorting, dark mode, etc.
 
-Backend (Flask API)
+### Backend (Flask)
 
-Built with Python + Flask + Flask‑CORS.
+-   Loads **sentence-transformer model** for embeddings\
+-   Connects to **ChromaDB** for vector search\
+-   Returns top-K relevant videos with similarity scores
 
-Loads a sentence‑transformer model to generate embeddings.
+### Vector Database (ChromaDB)
 
-Connects to a vector database (e.g., ChromaDB) where all video embeddings are stored.
+Stores:
 
-YouTube Data & Vector Store
+    video_id  
+    title  
+    description  
+    channel  
+    thumbnail  
+    yt_link  
+    embedding  
 
-YouTube video metadata and transcripts are pre‑processed.
+### Semantic Search Workflow
 
-Each video is converted into an embedding and stored in the vector DB with:
+    User Query → Embedding → Vector Search → Ranked Results → UI Display
 
-video_id, video_title, description, channel_title, thumbnail, yt_link, embedding.
+## 4. Backend Details
 
-Semantic Search Flow
+### Tech Stack
 
-User enters a query → frontend calls /search.
+-   Python\
+-   Flask, Flask-CORS\
+-   sentence-transformers\
+-   ChromaDB\
+-   NumPy
 
-Backend embeds query → runs similarity search in vector DB → ranks results using cosine similarity → returns top‑K videos with their similarity_score.
+### API Endpoints
 
-Frontend renders ranked video cards and allows sorting/filtering.
+#### GET /
 
-4. Backend Details
-4.1 Tech Stack
-Language: Python
+Health check.
 
-Framework: Flask, Flask‑CORS
+#### POST /search
 
-ML / NLP: sentence-transformers (e.g., MiniLM‑based model)
+Request:
 
-Vector DB: ChromaDB (or similar)
-
-Others: requests, numpy, pydantic (optional)
-
-4.2 Core Concepts
-Embeddings
-
-Sentences (titles, transcripts, queries) are converted into high‑dimensional vectors.
-
-These vectors capture semantic meaning and allow similarity comparison.
-
-Vector Database
-
-Stores all video embeddings with metadata.
-
-Supports fast k‑nearest neighbor search for a given query embedding.
-
-Cosine Similarity
-
-Measures how close two vectors are in direction.
-
-Values near 1.0 → highly similar; near 0.0 → unrelated.
-
-Used to compute similarity_score for each video.
-
-4.3 API Design (Example)
-GET /
-
-Health check. Returns API status and usage info.
-
-POST /search
-
-Body:
-
-json
+``` json
 {
-  "query": "data structures in python",
+  "query": "machine learning basics",
   "top_k": 8,
-  "sortBy": "similarity"   // or "channel"
+  "sortBy": "similarity"
 }
-Steps:
+```
 
-Validate query.
+Response:
 
-Generate query embedding using sentence‑transformer.
-
-Search vector DB for top‑K similar videos.
-
-Sort:
-
-by similarity_score (desc) when sortBy = "similarity", or
-
-by channel_title when sortBy = "channel".
-
-Return JSON list of videos.
-
-Response (simplified):
-
-json
+``` json
 [
   {
     "video_title": "...",
     "description": "...",
     "channel_title": "...",
-    "thumbnail": "https://...",
-    "yt_link": "https://youtube.com/watch?v=...",
+    "thumbnail": "...",
+    "yt_link": "...",
     "similarity_score": 0.842
-  },
-  ...
+  }
 ]
-4.4 Error Handling
-Empty query → HTTP 400 with {"error": "Query cannot be empty"}.
+```
 
-Unexpected exceptions → HTTP 500 with error message logged server‑side.
+### Error Handling
 
-5. Frontend Details
-5.1 Tech Stack
-React (Vite or CRA)
+  Condition         Response
+  ----------------- -----------------------------------------
+  Empty query       400: {"error": "Query cannot be empty"}
+  Internal errors   500 with message
 
-Tailwind CSS for styling
+## 5. Frontend Details
 
-Framer Motion for animations
+### Tech Stack
 
-Axios for HTTP requests
+-   React\
+-   Tailwind CSS\
+-   Axios\
+-   Framer Motion\
+-   LocalStorage
 
-LocalStorage for saving recent searches
+### Key Components
 
-5.2 Main Components
-App.jsx
+  Component       Description
+  --------------- --------------------------------------
+  App.jsx         Main UI, API calls, state management
+  SearchBar.jsx   Search input + sort dropdown
+  VideoCard.jsx   Displays each video result
+  Sidebar.jsx     Shows recent searches
+  Navbar.jsx      Title, dark/light mode
+  ParticlesBg     Background animations
 
-Global layout, theme (dark/light mode), sidebar + main content.
+### Features
 
-Holds core state: query, videos, loading, sortBy, darkMode, recentSearches, sidebarOpen.
+-   Search YouTube videos semantically\
+-   Show similarity scores\
+-   Dark / Light mode\
+-   Sorting (Similarity / Channel Name)\
+-   Recent search history\
+-   Open videos on YouTube
 
-Implements handleSearch to call backend and update UI.
+## 6. Query Processing Pipeline
 
-SearchBar.jsx
+1.  User enters a natural-language query\
+2.  React sends POST request to Flask\
+3.  Flask embeds the query\
+4.  Vector DB returns top-K similar videos\
+5.  Backend ranks & sorts\
+6.  Frontend displays interactive results
 
-Input field + search button + sort dropdown (Sort by Similarity / Sort by Channel).
+## 7. Installation & Setup
 
-VideoCard.jsx
+### Backend Setup
 
-Displays:
+    git clone <repo-url>
+    cd backend
+    python -m venv venv
+    venv\Scripts\activate
+    pip install -r requirements.txt
+    python app.py
 
-Thumbnail
+### Frontend Setup
 
-Video title
+    cd frontend
+    npm install
+    npm run dev
 
-Description (clamped)
+Set API endpoint in `.env`:
 
-Channel name
+    VITE_API_BASE_URL=http://127.0.0.1:8000
 
-Similarity score badge
+## 8. Future Enhancements
 
-"Watch on YouTube" button (opens yt_link in a new tab).
+-   User login + personalized search history\
+-   Filters (duration, upload date, language)\
+-   Advanced NLP (query expansion / correction)\
+-   Deployment on cloud platforms\
+-   Admin dashboard for analytics
 
-Sidebar.jsx
+## 9. Credits
 
-Shows Recent Searches.
-
-Clicking an item re‑triggers a search with that term.
-
-Uses localStorage to persist across refreshes.
-
-Navbar.jsx
-
-Project title, dark/light mode toggle, sidebar toggle.
-
-ParticlesBg / visual components
-
-Animated background for a modern look.
-
-5.3 Frontend Behaviour
-On load:
-
-Read recentSearches from localStorage.
-
-Show empty state or last results.
-
-On search:
-
-Validate query (non‑empty).
-
-Show loading spinner.
-
-Send POST /search.
-
-On success: update videos, update recentSearches (max 5 unique items).
-
-On sort change:
-
-Re‑sort videos array locally by:
-
-similarity_score (descending), or
-
-channel_title (A–Z).
-
-On clicking "Watch on YouTube":
-
-Open video.yt_link in a new browser tab.
-
-6. Query Processing Pipeline (End‑to‑End)
-User Input
-
-User types a natural question or phrase into the search bar.
-
-Frontend Request
-
-React sends POST request to /search with { query, top_k, sortBy }.
-
-Backend Embedding
-
-Backend embeds the query using the sentence‑transformer model.
-
-Vector Search
-
-Query embedding is passed to vector DB to retrieve top‑K nearest video embeddings.
-
-Similarity scores (cosine similarity) are computed.
-
-Ranking & Sorting
-
-Results are ranked by similarity; optional secondary sort by channel.
-
-Response to Frontend
-
-Backend returns a JSON list of video objects.
-
-Rendering
-
-React maps over the list and displays VideoCard components.
-
-User can refine, re‑sort, or click through to YouTube.
-
-7. Installation & Setup (Example)
-7.1 Backend
-bash
-git clone <repo-url>
-cd backend
-
-python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
-
-pip install -r requirements.txt
-
-# configure model name, DB path, and YouTube data in config file or env vars
-
-python app.py  # runs on http://127.0.0.1:8000
-7.2 Frontend
-bash
-cd frontend
-npm install
-npm run dev  # runs on http://localhost:5173 (or similar)
-Ensure the frontend .env or config points VITE_API_BASE_URL (or similar) to the backend URL.
-
-8. Future Enhancements
-Add user authentication and personalized history.
-
-Support filters (duration, upload date, channel, language).
-
-Integrate query rewriting to auto‑correct and expand user queries.
-
-Add analytics dashboard for search trends.
-
-Deploy backend (e.g., on Render/Heroku) and frontend (e.g., on Vercel/Netlify).
-
-9. Credits
-Developed as part of Infosys Springboard Virtual Internship 6.0 (B2).
-
-Uses open‑source libraries: sentence-transformers, Flask, React, Tailwind CSS, Framer Motion, and a vector database (ChromaDB).
+Developed as part of:\
+**Infosys Springboard Virtual Internship 6.0 (B2)**\
+Uses open-source tools: - Flask\
+- React\
+- sentence-transformers\
+- ChromaDB\
+- Tailwind CSS\
+- Framer Motion
